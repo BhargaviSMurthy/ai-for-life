@@ -1,29 +1,57 @@
 from fastapi import APIRouter
+from openai import OpenAI
 from pydantic import BaseModel
 from datetime import date
 
+from backend.utils.FinancialPlanInput import FinancialPlanInput
+client = OpenAI(qpi_key="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")
 router = APIRouter()
 
-class UserInput(BaseModel):
-    first_name: str
-    last_name: str
-    dob: date
-    investment_type: str  # growth, compounding, or medium
 
 @router.post("/financial-plan")
-def create_financial_plan(data: UserInput):
-    # Simple logic based on investment type
-    plans = {
-        "growth": "Aggressive portfolio with high-risk equity funds",
-        "compounding": "Balanced mix of reinvested mutual funds and recurring deposits",
-        "medium": "Moderate-risk portfolio with stable debt funds"
-    }
+def create_financial_plan(financialPlanInput: FinancialPlanInput):
+    
+     # Prepare a context message for AI
+    prompt = f"""
+    You are a financial advisor. Based on the following client data:
+    - Name: {financialPlanInput.first_name} {financialPlanInput.last_name}
+    - Date of Birth: {financialPlanInput.dob}
+    - Investment Type: {financialPlanInput.investment_type.value}
+    - Risk Tolerance: {financialPlanInput.riskTolerance.value}
+    - Family Income: {financialPlanInput.family_income}
+    - Monthly Expenses: {financialPlanInput.monthly_expenses}
+    - Maritial Status: {financialPlanInput.maritial_status.value}
+    - Number of Dependents: {financialPlanInput.number_of_dependents}
+    - Years to Invest: {financialPlanInput.years_to_invest}
+    - Investment Amount: {financialPlanInput.investment_amount}
+    - Investment Frequency: {financialPlanInput.investment_frequency.value}
+    - Investment Goals: {financialPlanInput.investment_goals}
+    - Investment Experience: {financialPlanInput.investment_experience.value}
+    - Investment Horizon: {financialPlanInput.investment_horizon.value}
+    - Target Return: {financialPlanInput.target_return}%
+    Please  generate a comprehensive financial plan that includes as they totally relay on your expertise.:
 
-    plan_description = plans.get(data.investment_type.lower(), "Custom plan based on advisor consultation")
+    Provide:
+    1. A clear recommended financial plan (short paragraph)
+    2. 3 actionable investment suggestions
+    3. A short note on expected risk/reward
+    """
+
+    # Call AI model
+    response = client.chat.completions.create(
+        model="gpt-4o-mini",  # or gpt-4-turbo, gpt-5, etc.
+        messages=[
+            {"role": "system", "content": "You are an expert financial planner."},
+            {"role": "user", "content": prompt},
+        ],
+        temperature=0.7,
+    )
+
+    ai_plan = response.choices[0].message.content
 
     return {
-        "name": f"{data.first_name} {data.last_name}",
-        "date_of_birth": str(data.dob),
-        "investment_type": data.investment_type,
-        "financial_plan": plan_description
+        "name": f"{financialPlanInput.first_name} {financialPlanInput.last_name}",
+        "date_of_birth": str(financialPlanInput.dob),
+        "investment_type": financialPlanInput.investment_type,
+        "ai_recommendation": ai_plan
     }
