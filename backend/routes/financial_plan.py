@@ -2,9 +2,10 @@ from fastapi import APIRouter
 from openai import OpenAI
 from pydantic import BaseModel
 from datetime import date
+import os
 
 from backend.utils.FinancialPlanInput import FinancialPlanInput
-client = OpenAI(qpi_key="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")
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 router = APIRouter()
 
 
