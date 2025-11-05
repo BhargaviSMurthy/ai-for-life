@@ -1,7 +1,5 @@
 from fastapi import APIRouter
 from openai import OpenAI
-from pydantic import BaseModel
-from datetime import date
 import os
 
 from backend.utils.FinancialPlanInput import FinancialPlanInput
