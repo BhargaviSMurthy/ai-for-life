@@ -1,0 +1,13 @@
+{
+  "name": "ai-for-life-frontend",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Minimal frontend scaffold for ai-for-life (dev only)",
+  "scripts": {
+    "start": "lite-server --baseDir=./",
+    "build": "echo \"No build step configured\""
+  },
+  "devDependencies": {
+    "lite-server": "^2.9.0"
+  }
+}
